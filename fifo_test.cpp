@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+
+#include <array>
 #include <atomic>
 #include <random>
 #include <unordered_set>
