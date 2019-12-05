@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+
+#include <array>
 #include <atomic>
 #include <random>
 #include <unordered_set>
@@ -6,9 +8,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "RealtimeTraits.hpp"
-#include "fifo.hpp"
-#include "AsyncCaller.hpp"
+#include <farbot/farbot.hpp>
 
 using TestData = std::array<long long, 8>;
 
@@ -35,7 +35,7 @@ TEST(fifo, no_data_test)
 {
     farbot::fifo<TestData> fifo (256);
 
-    TestData test; 
+    TestData test;
     EXPECT_FALSE (fifo.pop (test));
 }
 
@@ -123,10 +123,10 @@ void do_thread_test()
     std::array<std::unordered_set<long long>, number_of_reader_threads> readValues;
     std::array<std::unique_ptr<std::thread>, number_of_reader_threads> readThreads;
     std::array<std::unique_ptr<std::thread>, number_of_writer_threads> writeThreads;
-    
+
     for (int i = 0; i < number_of_reader_threads; ++i)
     {
-        readThreads[i] = 
+        readThreads[i] =
         std::make_unique<std::thread> ([&fifo, &running, &readValues, i] ()
         {
             auto& values = readValues[i];
@@ -153,7 +153,7 @@ void do_thread_test()
 
                     if (number_of_writer_threads == 1)
                         EXPECT_GT (value, lastValue);
-                    
+
                     lastValue = value;
                 }
             }
@@ -171,7 +171,7 @@ void do_thread_test()
 
     for (int i = 0; i < number_of_writer_threads; ++i)
     {
-        writeThreads[i] = 
+        writeThreads[i] =
         std::make_unique<std::thread> ([&fifo, &atomic_counter] ()
         {
             while (true)

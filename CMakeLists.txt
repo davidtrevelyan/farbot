@@ -7,11 +7,11 @@ find_package(Threads REQUIRED)
 # Enable testing
 include(GoogleTest)
 enable_testing()
-set(GTEST_DIR "${CMAKE_SOURCE_DIR}/googletest/googletest")
+set(GTEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest")
 
 # Set a default build type if none was specified
 set(default_build_type "Release")
-if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
   set(default_build_type "Debug")
 endif()
 
@@ -57,8 +57,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
  set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -latomic")
 endif()
 
-add_executable(gtestrunner fifo_test.cpp AsyncCaller.hpp RealtimeTraits.hpp RealtimeMutatable.hpp RealtimeMutatable.tcc fifo.hpp fifo.tcc ${GTEST_DIR}/src/gtest_main.cc ${GTEST_DIR}/src/gtest-all.cc)
-target_include_directories(gtestrunner PRIVATE ${GTEST_DIR} ${GTEST_DIR}/include)
-target_link_libraries(gtestrunner Threads::Threads) 
+set(FARBOT_LIB_TARGET ${PROJECT_NAME})
+add_library(${FARBOT_LIB_TARGET} INTERFACE)
+target_include_directories(${FARBOT_LIB_TARGET} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
-gtest_discover_tests(gtestrunner TEST_PREFIX farbot:)
+add_executable(farbot_test test/fifo_test.cpp include/farbot/farbot.hpp)
+target_link_libraries(farbot_test PRIVATE ${FARBOT_LIB_TARGET} gtest gtest_main Threads::Threads)
+gtest_discover_tests(farbot_test TEST_PREFIX farbot:)
