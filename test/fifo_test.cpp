@@ -8,7 +8,9 @@
 #include <mutex>
 #include <condition_variable>
 
-#include <farbot/farbot.hpp>
+#include <farbot/RealtimeTraits.hpp>
+#include <farbot/fifo.hpp>
+#include <farbot/AsyncCaller.hpp>
 
 using TestData = std::array<long long, 8>;
 

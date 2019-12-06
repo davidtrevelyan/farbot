@@ -61,6 +61,23 @@ set(FARBOT_LIB_TARGET ${PROJECT_NAME})
 add_library(${FARBOT_LIB_TARGET} INTERFACE)
 target_include_directories(${FARBOT_LIB_TARGET} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
-add_executable(farbot_test test/fifo_test.cpp include/farbot/farbot.hpp)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("${PROJECT_BINARY_DIR}/farbot-config-version.cmake" VERSION 0.1 COMPATIBILITY AnyNewerVersion)
+install(
+    TARGETS farbot
+    EXPORT farbotTargets
+    LIBRARY DESTINATION lib COMPONENT Runtime
+    ARCHIVE DESTINATION lib COMPONENT Development
+    RUNTIME DESTINATION bin COMPONENT Runtime
+    PUBLIC_HEADER DESTINATION include COMPONENT Development
+    BUNDLE DESTINATION bin COMPONENT Runtime)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file("${PROJECT_SOURCE_DIR}/cmake/farbot-config.cmake.in" "${PROJECT_BINARY_DIR}/farbot-config.cmake" INSTALL_DESTINATION lib/cmake/farbot)
+install(EXPORT farbotTargets DESTINATION lib/cmake/farbot)
+install(FILES "${PROJECT_BINARY_DIR}/farbot-config-version.cmake" "${PROJECT_BINARY_DIR}/farbot-config.cmake" DESTINATION lib/cmake/farbot)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include)
+
+add_executable(farbot_test test/fifo_test.cpp test/compile_all_headers.cpp)
 target_link_libraries(farbot_test PRIVATE ${FARBOT_LIB_TARGET} gtest gtest_main Threads::Threads)
 gtest_discover_tests(farbot_test TEST_PREFIX farbot:)
